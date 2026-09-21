@@ -1,0 +1,29 @@
+Estilização e Organização Visual O site possui tema arcade/pixel com paleta roxa neon, organizado em 4 telas distintas: Home,
+  Carregamento, Quiz e Resultado. Usa glassmorphism nos cards com fundo semi-transparente e desfoque, duas fontes diferentes (Press Start 2P
+  para títulos e Inter para o conteúdo), gradiente no fundo com efeito de névoa colorida e pixels flutuantes decorativos.
+
+  Animações Todas feitas com @keyframes puro, sem biblioteca externa. O ícone principal sobe e desce suavemente, os pixels do fundo sobem   
+  pela tela girando, o logo gira continuamente, as telas entram com deslize, a alternativa correta faz uma expansão ao ser clicada, a errada
+  treme lateralmente, o timer pisca em vermelho quando chega a 5 segundos e o spinner de carregamento gira em passos no estilo pixel.       
+
+  Responsividade Três breakpoints via media queries: em telas até 700px as alternativas viram coluna única e os botões empilham, em até     
+  480px a fonte base é reduzida e o cabeçalho fica compacto, e em até 360px tudo fica em coluna única com botões menores. Os títulos usam   
+  clamp() para escala fluida entre tamanhos.
+
+  Integração com API Externa sem chave A Open Trivia Database foi integrada via fetch para buscar perguntas de tecnologia. Como a API       
+  retorna apenas em inglês, o jogo usa um banco local de 27 perguntas em português como fonte principal, construído no mesmo formato da API 
+  para que a troca entre as duas fontes seja transparente para o restante do código.
+
+  Acessibilidade Skip link invisível que aparece ao pressionar Tab para pular ao conteúdo principal. Botão de alto contraste que aplica     
+  paleta preta, branca e amarela para usuários com baixa visão. Botões A+ e A− para aumentar ou diminuir o tamanho do texto. Menu de        
+  simulação de daltonismo com três modos usando filtros SVG: Protanopia para ausência de cones vermelhos, Deuteranopia para ausência de     
+  cones verdes e Tritanopia para ausência de cones azuis. Navegação completa por teclado com foco gerenciado entre telas. HTML semântico com
+  main, header, footer, nav, fieldset, legend e outros. Atributos ARIA como aria-live, aria-label, aria-pressed, aria-expanded e role em    
+  todos os elementos interativos. Media query prefers-reduced-motion que desativa animações quando o usuário tem essa preferência no        
+  sistema.
+
+  Técnicas de CSS CSS Custom Properties para toda a paleta e espaçamentos, backdrop-filter para glassmorphism, background-clip text para    
+  gradiente no título, clamp para tipografia fluida, CSS Grid e Flexbox para os layouts, @keyframes para animações, focus-visible para      
+  indicador de foco acessível, prefers-reduced-motion para respeitar preferências do sistema, scrollbar personalizada na lista de revisão,  
+  filter com referência a SVG para os filtros de daltonismo, nth-child para posicionamento individual dos pixels do fundo e pseudo-elemento 
+  after para borda decorativa nos botões.
