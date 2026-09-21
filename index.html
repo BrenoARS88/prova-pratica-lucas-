@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AccessQuiz — Jogo interativo que testa seus conhecimentos sobre acessibilidade web. Responda perguntas sobre WCAG, ARIA, HTML semântico e muito mais!" />
+    <title>AccessQuiz ♿ — Jogo de Acessibilidade</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Press Start 2P: fonte pixel/retro para o tema de jogo -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+
+  <body>
+    <!-- ♿ Skip link: permite pular ao conteúdo via teclado (acessibilidade) -->
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+
+    <!--
+      Filtros SVG para simulação de daltonismo.
+      Baseados nas matrizes de transformação de cores (color matrix)
+      para cada tipo de visão cromática reduzida.
+      aria-hidden: puramente técnico, sem semântica visual.
+    -->
+    <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+      <defs>
+        <!-- Protanopia: ausência de cones vermelhos (sem percepção de vermelho) -->
+        <filter id="filter-protanopia">
+          <feColorMatrix type="matrix" values="
+            0.152  1.053 -0.205  0  0
+            0.115  0.786  0.099  0  0
+            0      0.143  0.857  0  0
+            0      0      0      1  0"/>
+        </filter>
+
+        <!-- Deuteranopia: ausência de cones verdes (sem percepção de verde) -->
+        <filter id="filter-deuteranopia">
+          <feColorMatrix type="matrix" values="
+            0.367  0.861 -0.228  0  0
+            0.280  0.673  0.047  0  0
+           -0.012  0.043  0.969  0  0
+            0      0      0      1  0"/>
+        </filter>
+
+        <!-- Tritanopia: ausência de cones azuis (sem percepção de azul) -->
+        <filter id="filter-tritanopia">
+          <feColorMatrix type="matrix" values="
+            1.256 -0.077 -0.179  0  0
+           -0.078  0.931  0.148  0  0
+            0.005  0.691  0.304  0  0
+            0      0      0      1  0"/>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Fundo animado: pixels flutuantes decorativos -->
+    <div class="bg-pixels" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="app-wrapper">
+
+      <!-- ===== CABEÇALHO ===== -->
+      <header class="site-header" role="banner">
+        <div class="logo">
+          <span class="logo-icon" aria-hidden="true">♿</span>
+          <span class="logo-text">AccessQuiz</span>
+        </div>
+
+        <nav class="header-controls" aria-label="Controles de acessibilidade">
+          <!-- Tamanho de fonte -->
+          <button id="btn-font-minus" class="btn-icon" aria-label="Diminuir tamanho do texto" title="Texto menor">A−</button>
+          <button id="btn-font-plus"  class="btn-icon" aria-label="Aumentar tamanho do texto" title="Texto maior">A+</button>
+          <!-- Alto contraste -->
+          <button id="btn-contrast" class="btn-icon" aria-pressed="false" aria-label="Ativar modo de alto contraste" title="Alto contraste">◑</button>
+
+          <!-- Simulação de visão cromática -->
+          <div class="vision-menu-wrapper" id="vision-menu-wrapper">
+            <button
+              id="btn-vision-toggle"
+              class="btn-icon btn-icon--vision"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="vision-menu"
+              aria-label="Abrir menu de simulação de visão cromática"
+              title="Simulação de daltonismo"
+            >👁</button>
+
+            <div
+              id="vision-menu"
+              class="vision-menu hidden"
+              role="menu"
+              aria-label="Tipos de visão cromática"
+            >
+              <p class="vision-menu__title" aria-hidden="true">Visão Cromática</p>
+
+              <button role="menuitemradio" aria-checked="true"  data-vision="none"          class="vision-option vision-option--active" id="vision-none">
+                <span class="vision-swatch" style="background:linear-gradient(135deg,#c77dff,#56efb8)" aria-hidden="true"></span>
+                <span>Normal</span>
+              </button>
+              <button role="menuitemradio" aria-checked="false" data-vision="protanopia"    class="vision-option" id="vision-proto">
+                <span class="vision-swatch vision-swatch--proto" aria-hidden="true"></span>
+                <span>Protanopia</span>
+                <span class="vision-desc">Sem cones vermelhos</span>
+              </button>
+              <button role="menuitemradio" aria-checked="false" data-vision="deuteranopia"  class="vision-option" id="vision-deuter">
+                <span class="vision-swatch vision-swatch--deuter" aria-hidden="true"></span>
+                <span>Deuteranopia</span>
+                <span class="vision-desc">Sem cones verdes</span>
+              </button>
+              <button role="menuitemradio" aria-checked="false" data-vision="tritanopia"    class="vision-option" id="vision-trit">
+                <span class="vision-swatch vision-swatch--trit" aria-hidden="true"></span>
+                <span>Tritanopia</span>
+                <span class="vision-desc">Sem cones azuis</span>
+              </button>
+            </div>
+          </div><!-- /.vision-menu-wrapper -->
+        </nav>
+      </header>
+
+      <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+      <main id="main-content" tabindex="-1">
+
+        <!-- ── TELA INICIAL ── -->
+        <section id="screen-home" class="screen screen-home" aria-labelledby="home-title">
+          <div class="home-hero">
+            <div class="trophy-anim" aria-hidden="true">♿</div>
+            <h1 id="home-title" class="game-title">
+              Jogo de<br>Acessibilidade
+            </h1>
+            <p class="game-subtitle">
+              Teste seus conhecimentos sobre acessibilidade web,<br>
+              WCAG, ARIA, HTML semântico e boas práticas inclusivas.
+            </p>
+
+            <div class="home-stats glass" role="region" aria-label="Seu melhor desempenho">
+              <div class="stat-item">
+                <span class="stat-label">Melhor pontuação</span>
+                <span id="best-score" class="stat-value">—</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Partidas jogadas</span>
+                <span id="total-games" class="stat-value">0</span>
+              </div>
+            </div>
+
+            <!-- Seletor de dificuldade -->
+            <fieldset class="difficulty-selector glass" aria-describedby="difficulty-hint">
+              <legend>Escolha a dificuldade</legend>
+              <span id="difficulty-hint" class="sr-only">Selecione o nível antes de iniciar</span>
+              <div class="difficulty-options" role="radiogroup" aria-label="Nível de dificuldade">
+                <label class="difficulty-option">
+                  <input type="radio" name="difficulty" value="easy" checked aria-label="Fácil — 10 perguntas básicas" />
+                  <span class="difficulty-badge badge-easy">😊 Fácil</span>
+                </label>
+                <label class="difficulty-option">
+                  <input type="radio" name="difficulty" value="medium" aria-label="Médio — 10 perguntas intermediárias" />
+                  <span class="difficulty-badge badge-medium">🧠 Médio</span>
+                </label>
+                <label class="difficulty-option">
+                  <input type="radio" name="difficulty" value="hard" aria-label="Difícil — 10 perguntas avançadas" />
+                  <span class="difficulty-badge badge-hard">🔥 Difícil</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <button id="btn-start" class="btn-primary btn-pixel">
+              <span aria-hidden="true">▶</span> Iniciar Jogo
+            </button>
+
+            <!-- Banner informativo: exibido quando um modo de visão está ativo -->
+            <div
+              id="vision-banner"
+              class="vision-banner hidden"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            ></div>
+          </div>
+        </section>
+
+        <!-- ── TELA DE CARREGAMENTO ── -->
+        <section id="screen-loading" class="screen hidden" aria-live="polite" aria-label="Carregando perguntas">
+          <div class="loading-container">
+            <div class="pixel-spinner" aria-hidden="true"></div>
+            <p class="loading-text">Carregando perguntas…</p>
+            <p class="loading-sub">Buscando na Open Trivia DB</p>
+          </div>
+        </section>
+
+        <!-- ── TELA DO QUIZ ── -->
+        <section id="screen-quiz" class="screen hidden" aria-labelledby="question-heading">
+
+          <!-- Barra de progresso -->
+          <div class="quiz-header">
+            <div class="progress-info">
+              <span id="question-counter" aria-live="polite" aria-atomic="true"></span>
+              <div
+                class="progress-bar-track"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="10"
+                aria-valuenow="0"
+                aria-label="Progresso do quiz"
+                id="progress-bar-track"
+              >
+                <div id="progress-bar-fill" class="progress-bar-fill"></div>
+              </div>
+            </div>
+            <div class="score-timer">
+              <span class="score-display" aria-live="polite" aria-atomic="true">
+                <span aria-hidden="true">⭐</span>
+                <span id="current-score">0</span> pts
+              </span>
+              <div
+                id="timer-display"
+                class="timer-display"
+                role="timer"
+                aria-live="polite"
+                aria-label="Tempo restante"
+              >
+                <span id="timer-value" class="timer-value">30</span>s
+              </div>
+            </div>
+          </div>
+
+          <!-- Categoria -->
+          <p id="question-category" class="question-category" aria-label="Categoria da pergunta"></p>
+
+          <!-- Pergunta -->
+          <article class="question-card glass" aria-labelledby="question-heading">
+            <h2 id="question-heading" class="question-text"></h2>
+          </article>
+
+          <!-- Opções de resposta -->
+          <div
+            id="answers-grid"
+            class="answers-grid"
+            role="group"
+            aria-labelledby="question-heading"
+          ></div>
+
+          <!-- Feedback após resposta -->
+          <div
+            id="answer-feedback"
+            class="answer-feedback hidden"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          ></div>
+
+          <!-- Botão próxima pergunta -->
+          <button id="btn-next" class="btn-primary btn-pixel hidden" aria-label="Ir para a próxima pergunta">
+            Próxima <span aria-hidden="true">▶</span>
+          </button>
+
+        </section>
+
+        <!-- ── TELA DE RESULTADO ── -->
+        <section id="screen-result" class="screen hidden" aria-labelledby="result-title" aria-live="polite">
+          <div class="result-container glass">
+
+            <div id="result-trophy" class="result-trophy" aria-hidden="true"></div>
+            <h2 id="result-title" class="result-title"></h2>
+            <p  id="result-message" class="result-message"></p>
+
+            <!-- Placar final -->
+            <dl class="result-stats" aria-label="Resultado final">
+              <div class="result-stat">
+                <dt>Pontuação</dt>
+                <dd id="res-score" class="result-highlight"></dd>
+              </div>
+              <div class="result-stat">
+                <dt>Acertos</dt>
+                <dd id="res-correct"></dd>
+              </div>
+              <div class="result-stat">
+                <dt>Erros</dt>
+                <dd id="res-wrong"></dd>
+              </div>
+              <div class="result-stat">
+                <dt>Precisão</dt>
+                <dd id="res-accuracy"></dd>
+              </div>
+            </dl>
+
+            <!-- Revisão das respostas -->
+            <section aria-labelledby="review-title">
+              <h3 id="review-title" class="review-title">Revisão das Respostas</h3>
+              <ol id="review-list" class="review-list" aria-label="Lista de perguntas com respostas corretas e erradas"></ol>
+            </section>
+
+            <div class="result-actions">
+              <button id="btn-play-again" class="btn-primary btn-pixel">
+                <span aria-hidden="true">↺</span> Jogar Novamente
+              </button>
+              <button id="btn-change-diff" class="btn-secondary btn-pixel">
+                <span aria-hidden="true">⚙</span> Mudar Dificuldade
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── TELA DE ERRO ── -->
+        <div
+          id="screen-error"
+          class="screen-error hidden"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <span class="error-icon" aria-hidden="true">⚠️</span>
+          <p id="error-text"></p>
+          <button id="btn-retry" class="btn-secondary btn-pixel">Tentar Novamente</button>
+        </div>
+
+      </main>
+
+      <!-- ===== RODAPÉ ===== -->
+      <footer class="site-footer" role="contentinfo">
+        <p>
+          Perguntas elaboradas em português sobre
+          <strong>acessibilidade web</strong>, WCAG e ARIA.
+        </p>
+      </footer>
+
+    </div><!-- /.app-wrapper -->
+
+    <script src="app.js"></script>
+  </body>
+</html>
